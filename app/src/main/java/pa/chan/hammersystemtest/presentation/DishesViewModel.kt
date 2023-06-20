@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import pa.chan.hammersystemtest.data.userException.ConnectionException
+import pa.chan.hammersystemtest.data.userException.UserError
 import pa.chan.hammersystemtest.domain.GetCategoriesUseCase
 import pa.chan.hammersystemtest.domain.GetDishesUseCase
 import pa.chan.hammersystemtest.domain.model.DishModel
@@ -26,13 +28,22 @@ class DishesViewModel @Inject constructor(
     val categoryLiveData: LiveData<Set<String>>
         get() = _categoryLiveData
 
+    private val _errorLiveData: MutableLiveData<UserError> = MutableLiveData()
+    val errorLiveData: LiveData<UserError>
+        get() = _errorLiveData
+
     fun fetchDishes() {
         viewModelScope.launch {
-            val dishes = getDishesUseCase()
-            val categories = getCategoriesUseCase(dishes)
 
-            _dishesLiveData.postValue(dishes)
-            _categoryLiveData.postValue(categories)
+            try {
+                val dishes = getDishesUseCase()
+                val categories = getCategoriesUseCase(dishes)
+                _dishesLiveData.postValue(dishes)
+                _categoryLiveData.postValue(categories)
+            } catch (e: ConnectionException) {
+                _errorLiveData.postValue(e)
+            }
+
         }
     }
 

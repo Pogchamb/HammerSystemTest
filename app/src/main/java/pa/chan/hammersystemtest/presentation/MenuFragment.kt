@@ -9,6 +9,7 @@ import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import pa.chan.hammersystemtest.R
 import pa.chan.hammersystemtest.databinding.MenuFrarmentBinding
@@ -57,6 +58,11 @@ class MenuFragment : Fragment() {
 
         viewModel.dishesLiveData.observe(viewLifecycleOwner) {
             binding?.dishesRecyclerView?.adapter = DishesAdapter(it)
+        }
+
+        viewModel.errorLiveData.observe(viewLifecycleOwner) {
+            val snackBar = Snackbar.make(view, it.errorMessage, Snackbar.LENGTH_SHORT)
+            snackBar.show()
         }
 
         val spinner: Spinner = view.findViewById(R.id.countrySpinner)
